@@ -14,13 +14,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-"use strict";
+'use strict';
 
 const {Gio, GObject} = imports.gi;
 
 const QuickSettings = imports.ui.quickSettings;
 const PopupMenu = imports.ui.popupMenu;
-
 
 // This is the live instance of the Quick Settings menu
 const QuickSettingsMenu = imports.ui.main.panel.statusArea.quickSettings;
@@ -48,7 +47,8 @@ class KbdBrightnessProxy {
             Gio.DBus.system,
             'org.freedesktop.UPower',
             '/org/freedesktop/UPower/KbdBacklight',
-            callback);
+            callback
+        );
     }
 
     get Brightness() {
@@ -65,7 +65,6 @@ class KbdBrightnessProxy {
         return this._proxy.GetMaxBrightnessSync();
     }
 }
-
 
 const FeatureIndicator = GObject.registerClass(
     class FeatureIndicator extends QuickSettings.SystemIndicator {
@@ -87,7 +86,8 @@ const FeatureIndicator = GObject.registerClass(
             // argument to ensure the slider spans both columns of the menu
             QuickSettingsMenu._addItems(this.quickSettingsItems, 2);
         }
-    });
+    }
+);
 
 const FeatureSlider = GObject.registerClass(
     class FeatureSlider extends QuickSettings.QuickSlider {
@@ -96,8 +96,10 @@ const FeatureSlider = GObject.registerClass(
                 iconName: 'keyboard-brightness-symbolic',
             });
 
-            this._sliderChangedId = this.slider.connect('notify::value',
-                this._onSliderChanged.bind(this));
+            this._sliderChangedId = this.slider.connect(
+                'notify::value',
+                this._onSliderChanged.bind(this)
+            );
 
             this.slider.accessible_name = 'Keyboard Brightness';
             this.pauseSync = false;
@@ -109,37 +111,39 @@ const FeatureSlider = GObject.registerClass(
                 proxy.connectSignal('BrightnessChanged', this._sync.bind(this));
                 this._sync();
             });
-            
         }
 
         _onSliderChanged() {
-			log("onSliderChanged")
-			this.pauseSync = true;
-            if (!this.syncing) this._proxy.Brightness = this.slider.value; log("actioned");
+            log('onSliderChanged');
+            this.pauseSync = true;
+            if (!this.syncing) this._proxy.Brightness = this.slider.value;
+            log('actioned');
             this.pauseSync = false;
         }
-        
-        _sync() {
-			log("sync")
-			this.syncing = true;
-			if (!this.pauseSync) this.slider.value = this._proxy.Brightness; log("actioned");
-			this.syncing = false;
-		}
-    });
 
-var KeyboardSliderFeature = class {
+        _sync() {
+            log('sync');
+            this.syncing = true;
+            if (!this.pauseSync) this.slider.value = this._proxy.Brightness;
+            log('actioned');
+            this.syncing = false;
+        }
+    }
+);
+
+let KeyboardSliderFeature = class {
     constructor() {
         this._indicator = null;
     }
 
     load() {
-        log("Loading KeyboardSliderFeature");
+        log('Loading KeyboardSliderFeature');
         this._indicator = new FeatureIndicator();
     }
 
     unload() {
-        log("Unloading KeyboardSliderFeature");
+        log('Unloading KeyboardSliderFeature');
         this._indicator.destroy();
         this._indicator = null;
     }
-}
+};

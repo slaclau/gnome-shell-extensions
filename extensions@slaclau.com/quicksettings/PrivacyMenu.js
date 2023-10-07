@@ -9,7 +9,7 @@ const QuickSettingsMenu = imports.ui.main.panel.statusArea.quickSettings;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const { ExtensionHelper } = Me.imports.libs;
+const {ExtensionHelper} = Me.imports.libs;
 
 const FeatureIndicator = GObject.registerClass(
     class FeatureIndicator extends QuickSettings.SystemIndicator {
@@ -26,26 +26,27 @@ const FeatureIndicator = GObject.registerClass(
 
             QuickSettingsMenu._addItems(this.quickSettingsItems, 1);
         }
-    });
-
+    }
+);
 
 const PrivacyMenuToggle = GObject.registerClass(
-class PrivacyMenuToggle extends QuickSettings.QuickMenuToggle {
-    _init() {
-        super._init({
-            title: 'Privacy',
-            iconName: 'view-private-symbolic',
-            toggleMode: true,
-        });
-        // This function is unique to this class. It adds a nice header with an
-        // icon, title and optional subtitle. It's recommended you do so for
-        // consistency with other menus.
-        this.menu.setHeader('view-private-symbolic', 'Privacy',);
-        let privacyMenuSection = new PrivacyMenuSection();
-        privacyMenuSection.addEntries();
-        this.menu.addMenuItem(privacyMenuSection);
+    class PrivacyMenuToggle extends QuickSettings.QuickMenuToggle {
+        _init() {
+            super._init({
+                title: 'Privacy',
+                iconName: 'view-private-symbolic',
+                toggleMode: true,
+            });
+            // This function is unique to this class. It adds a nice header with an
+            // icon, title and optional subtitle. It's recommended you do so for
+            // consistency with other menus.
+            this.menu.setHeader('view-private-symbolic', 'Privacy');
+            let privacyMenuSection = new PrivacyMenuSection();
+            privacyMenuSection.addEntries();
+            this.menu.addMenuItem(privacyMenuSection);
+        }
     }
-});
+);
 class PrivacyMenuSection extends PopupMenu.PopupMenuSection {
     createSettingToggle(popupLabel, iconName) {
         //Create sub menu with an icon
@@ -53,25 +54,45 @@ class PrivacyMenuSection extends PopupMenu.PopupMenuSection {
         subMenu.icon.icon_name = iconName;
 
         //Add a toggle to the submenu, then return it
-        subMenu.menu.addMenuItem(new PopupMenu.PopupSwitchMenuItem(_('Enabled'), true, null));
+        subMenu.menu.addMenuItem(
+            new PopupMenu.PopupSwitchMenuItem(_('Enabled'), true, null)
+        );
         return subMenu;
     }
 
     addEntries() {
-		this._privacySettings = new Gio.Settings({schema: 'org.gnome.desktop.privacy'});
-        this._locationSettings = new Gio.Settings({schema: 'org.gnome.system.location'});
+        this._privacySettings = new Gio.Settings({
+            schema: 'org.gnome.desktop.privacy',
+        });
+        this._locationSettings = new Gio.Settings({
+            schema: 'org.gnome.system.location',
+        });
 
         let subMenus = [
-            this.createSettingToggle(_('Location'), 'location-services-active-symbolic'),
+            this.createSettingToggle(
+                _('Location'),
+                'location-services-active-symbolic'
+            ),
             this.createSettingToggle(_('Camera'), 'camera-photo-symbolic'),
-            this.createSettingToggle(_('Microphone'), 'audio-input-microphone-symbolic')
+            this.createSettingToggle(
+                _('Microphone'),
+                'audio-input-microphone-symbolic'
+            ),
         ];
 
         let gsettingsSchemas = [
             //Schema, key, bind flags
             [this._locationSettings, 'enabled', Gio.SettingsBindFlags.DEFAULT],
-            [this._privacySettings, 'disable-camera', Gio.SettingsBindFlags.INVERT_BOOLEAN],
-            [this._privacySettings, 'disable-microphone', Gio.SettingsBindFlags.INVERT_BOOLEAN]
+            [
+                this._privacySettings,
+                'disable-camera',
+                Gio.SettingsBindFlags.INVERT_BOOLEAN,
+            ],
+            [
+                this._privacySettings,
+                'disable-microphone',
+                Gio.SettingsBindFlags.INVERT_BOOLEAN,
+            ],
         ];
         //Create menu entries for each setting toggle
         subMenus.forEach((subMenu, i) => {
@@ -89,27 +110,34 @@ class PrivacyMenuSection extends PopupMenu.PopupMenuSection {
         this.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         //Create a submenu for the reset option, to prevent a misclick
-        let subMenu = new PopupMenu.PopupSubMenuMenuItem(_('Reset settings'), true);
+        let subMenu = new PopupMenu.PopupSubMenuMenuItem(
+            _('Reset settings'),
+            true
+        );
         subMenu.icon.icon_name = 'edit-delete-symbolic';
-        subMenu.menu.addAction(_('Reset to defaults'), ExtensionHelper.resetSettings, null);
+        subMenu.menu.addAction(
+            _('Reset to defaults'),
+            ExtensionHelper.resetSettings,
+            null
+        );
 
         this.addMenuItem(subMenu);
     }
 }
 
-var PrivacyToggleFeature = class {
+let PrivacyToggleFeature = class {
     constructor() {
         this._indicator = null;
     }
 
     load() {
-        log("Loading PrivacyToggleFeature");
+        log('Loading PrivacyToggleFeature');
         this._indicator = new FeatureIndicator();
     }
 
     unload() {
-        log("Unloading PrivacyToggleFeature");
+        log('Unloading PrivacyToggleFeature');
         this._indicator.destroy();
         this._indicator = null;
     }
-}
+};
